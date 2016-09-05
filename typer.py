@@ -14,7 +14,7 @@ class ScrolledText(Frame):
         
     def makewidgets(self):
         sbar = Scrollbar(self)
-        text = Text(self, relief=SUNKEN, takefocus = True, wrap = WORD)
+        text = Text(self, relief=SUNKEN, takefocus = True, wrap = WORD, height = 10)
         sbar.config(command=text.yview)
         text.config(yscrollcommand=sbar.set)
         sbar.pack(side=RIGHT, fill=Y)
@@ -30,7 +30,6 @@ class ScrolledText(Frame):
     def gettext(self):
         return self.text.get('1.0', END+'-1c')
 
-
 class Editor(Frame):
 	def __init__(self, parent=None):
 		Frame.__init__(self, parent)
@@ -39,13 +38,14 @@ class Editor(Frame):
 		self.text_frame = ScrolledText(self)
 		self.text = self.text_frame.text
 		self.text.bind('<BackSpace>', self.onDelWord)
+		self.text.bind('<Return>', self.onReturn)
+		self.text.bind('<Left>', self.onArrowLeft)
+		self.text.bind('<Right>', self.onArrowRight)
 		path = 'texts/howl'
 		self.source_text = file(path).read()
 		self.corpus = Corpus(self.source_text)
-		self.options = self.get_options()
-		#self.options = ['yes', 'no', 'marinara']
-		self.keyboard = self.make_keyboard(self, self.options)
-		self.keyboard.pack(anchor = W)
+		self.keyboard = Frame()
+		self.refresh_keyboard()
 	
 	def get_options(self):
 		previous_words = self.get_previous()
@@ -60,7 +60,8 @@ class Editor(Frame):
 		return only_words
 	
 	def make_keyboard(self, parent, wordlist):
-		keyboard = Frame(parent)
+		keyboard = Frame(parent, padx = 10)
+		header = Frame(keyboard)
 		current_row = Frame(keyboard)
 		for i in range(len(wordlist)):
 			optkey = Frame(current_row)
@@ -82,11 +83,31 @@ class Editor(Frame):
 		self.keyboard = self.make_keyboard(self, self.options)
 		self.keyboard.pack(anchor = W)
 	
+	def onReturn(self, event):
+		self.refresh_keyboard()
+		return 'break'
+	
 	def onAddWord(self, word):
 		t = self.text_frame.text
 		t.insert(INSERT, " "+str(word))
 		self.refresh_keyboard()
 		return 'break'
+	
+	def onArrowLeft(self, event):
+		t = self.text_frame.text
+		prev_wordbreak = t.search(' ', INSERT, stopindex='1.0', backwards=True)
+		if prev_wordbreak:
+			self.text.mark_set(INSERT, '%s+1c' % prev_wordbreak)
+		else:
+			self.text.mark_set(INSERT, '1.0')
+		
+	def onArrowRight(self, event):
+		t = self.text_frame.text
+		next_wordbreak = t.search(' ', '%s+1c' %INSERT, stopindex='end')
+		if next_wordbreak:
+			self.text.mark_set(INSERT, '%s-1c' % next_wordbreak)
+		else:
+			self.text.mark_set(INSERT, END)
 	
 	def onDelWord(self, event):
 		t = self.text_frame.text
