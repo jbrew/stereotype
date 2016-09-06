@@ -4,6 +4,7 @@ from tkSimpleDialog import askstring
 from tkFileDialog   import asksaveasfilename
 from corpus import Corpus
 from ngram import Ngram
+from channel import Channel
 
 class ScrolledText(Frame):
     def __init__(self, parent=None, text='', file=None):
@@ -41,56 +42,39 @@ class Editor(Frame):
 		self.text.bind('<Return>', self.onReturn)
 		self.text.bind('<Left>', self.onArrowLeft)
 		self.text.bind('<Right>', self.onArrowRight)
+		self.text.bind('<Tab>', self.onTabCycle)
 		path = 'texts/howl'
-		self.source_text = file(path).read()
-		self.corpus = Corpus(self.source_text)
-		self.keyboard = Frame()
-		self.refresh_keyboard()
+		paths = ['texts/howl', 'texts/batman']
+		self.channels = {}
+		for path in paths:
+			source_text = file(path).read()
+			name = path.split('/')[-1]
+			corpus = Corpus(source_text, name)
+			self.channels[name] = Channel(self, self.text, corpus)
+			self.active_channel = name
+#		self.source_text = file(path).read()
+#		self.corpus = Corpus(self.source_text, 'howl')
+#		self.channels = [Channel(self, self.text, self.corpus)]
+
+	def refresh_keyboards(self):
+		for key in self.channels:
+			channel = self.channels[key]
+			channel.refresh_keyboard()
+		self.channels[self.active_channel].refresh_keyboard()
 	
-	def get_options(self):
-		previous_words = self.get_previous()
-		print "prev:",previous_words
-		next_words = self.get_next()
-		print "next:",next_words
-		suggestions = self.corpus.suggest(previous_words, next_words, 9)
-		only_words = []
-		for word, score in suggestions:
-			only_words.append(word)
-		print only_words
-		return only_words
-	
-	def make_keyboard(self, parent, wordlist):
-		keyboard = Frame(parent, padx = 10)
-		header = Frame(keyboard)
-		current_row = Frame(keyboard)
-		for i in range(len(wordlist)):
-			optkey = Frame(current_row)
-			Label(optkey, text = str(i+1), width = 8, anchor = W, font = self.font).pack(side = LEFT)
-			option = wordlist[i]
-			num = i + 1
-			label = option
-			b = Button(optkey, text=label, font = self.font, width = 14, anchor = W, borderwidth = 0, 
-			command= lambda word=option: self.onAddWord(word))
-			b.pack(side = LEFT)
-			self.text_frame.text.bind(str(num), lambda event, arg=option: self.onAddWord(arg))
-			optkey.pack(side = TOP)
-		current_row.pack()		
-		return keyboard
-	
-	def refresh_keyboard(self):
-		self.options = self.get_options()
-		self.keyboard.destroy()
-		self.keyboard = self.make_keyboard(self, self.options)
-		self.keyboard.pack(anchor = W)
-	
-	def onReturn(self, event):
-		self.refresh_keyboard()
+	# goes to the next channel on tab press
+	def onTabCycle(self, event):
+		cur_index = self.channels.keys().index(self.active_channel)
+		print cur_index
+		next_index = (cur_index + 1) % len(self.channels.keys())
+		print next_index
+		self.active_channel = self.channels.keys()[next_index]
+		print "active: ",self.active_channel
+		self.channels[self.active_channel].refresh_keyboard()
 		return 'break'
 	
-	def onAddWord(self, word):
-		t = self.text_frame.text
-		t.insert(INSERT, " "+str(word))
-		self.refresh_keyboard()
+	def onReturn(self, event):
+		self.refresh_keyboards()
 		return 'break'
 	
 	def onArrowLeft(self, event):
@@ -122,7 +106,7 @@ class Editor(Frame):
 		else:
 			end = END
 		t.delete('%s+1c' % start, end)
-		self.refresh_keyboard()
+		self.refresh_keyboards()
 	
 	def get_previous(self):
 		previous = self.text.get('insert linestart', INSERT).split()
@@ -143,7 +127,8 @@ class Editor(Frame):
 			
 	def onGetNext(self):
 		print self.get_next()
-    	
+		
+		
 class LoadWindow(Frame):
 	def __init__(self, parent=None):
 		Frame.__init__(self, parent)

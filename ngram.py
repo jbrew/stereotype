@@ -25,14 +25,14 @@ class Ngram(object):
         return self.__dict__ == other.__dict__
 
     # returns top n words occuring distance after this ngram
-    def get_after(self, distance=1, n=20, sort_attribute="count"):
-        return self._get_ngram_and_attribute(distance, n, sort_attribute, True)
+    def get_after(self, distance=1, sort_attribute="count"):
+        return self._get_ngram_and_attribute(distance, sort_attribute, True)
 
     # returns top n words occuring distance before this ngram
-    def get_before(self, distance=1, n=20, sort_attribute="count"):
-        return self._get_ngram_and_attribute(distance, n, sort_attribute, False)
+    def get_before(self, distance=1, sort_attribute="count"):
+        return self._get_ngram_and_attribute(distance, sort_attribute, False)
 
-    def _get_ngram_and_attribute(self, distance, n, sort_attribute, is_after):
+    def _get_ngram_and_attribute(self, distance, sort_attribute, is_after):
         distance -= 1
         dictionary = self.after[distance] if is_after else self.before[distance]
 
@@ -49,4 +49,4 @@ class Ngram(object):
                     key=lambda tuple: tuple[1]
                 )
             )
-        )[0:n]
+        )

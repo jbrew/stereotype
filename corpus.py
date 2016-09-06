@@ -133,7 +133,7 @@ class Corpus(object):
 
     # given a sentence and an insertion position in that sentence, yields a list of words likely to occur at that position
     # based on adjacent words and baseline frequency
-    def suggest(self, preceding, following, num_opts):
+    def suggest(self, preceding, following):
 
         suggestions = {}
         # look at previous words in sentence, and all the words occurring after them
@@ -143,7 +143,7 @@ class Corpus(object):
                     end_of_ngram = len(preceding)-reach
                     start_of_ngram = end_of_ngram - (ngram_size-1)
                     previous_ngram = " ".join(preceding[start_of_ngram:end_of_ngram+1])
-                    after_previous = self.get_after(previous_ngram, reach, num_opts)
+                    after_previous = self.get_after(previous_ngram, reach)
 
                     # crude function for privileging larger n-grams and closer contexts
                     weight = (10**ngram_size)/(10**reach)
@@ -162,7 +162,7 @@ class Corpus(object):
                     start_of_ngram = reach - 1
                     end_of_ngram = start_of_ngram + (ngram_size - 1)
                     next_ngram = " ".join(following[start_of_ngram:end_of_ngram+1])
-                    before_next = self.get_before(next_ngram, reach, num_opts)
+                    before_next = self.get_before(next_ngram, reach)
 
                     # crude function for privileging larger n-grams and closer contexts
                     weight = (10**ngram_size)/(10**reach)
@@ -185,19 +185,19 @@ class Corpus(object):
                 else:
                     suggestions[key] += value
 
-        suggestion_list = list(reversed(sorted(suggestions.items(), key=operator.itemgetter(1))))[0:num_opts]
+        suggestion_list = list(reversed(sorted(suggestions.items(), key=operator.itemgetter(1))))
 
         return suggestion_list
 
-    def get_before(self, key, distance=1, num_opts = 20):
+    def get_before(self, key, distance=1):
         if key in self.tree:
-            return self.tree[key].get_before(distance, num_opts, self.sort_attribute)
+            return self.tree[key].get_before(distance, self.sort_attribute)
         else:
             return []
 
-    def get_after(self, key, distance=1, num_opts = 20):
+    def get_after(self, key, distance=1):
         if key in self.tree:
-            return self.tree[key].get_after(distance, num_opts, self.sort_attribute)
+            return self.tree[key].get_after(distance, self.sort_attribute)
         else:
             return []
 
