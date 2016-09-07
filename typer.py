@@ -47,27 +47,32 @@ class Editor(Frame):
 		self.text.bind('<Left>', self.onArrowLeft)
 		self.text.bind('<Right>', self.onArrowRight)
 		self.text.bind('<Tab>', self.onTabCycle)
-		paths = ['texts/howl', 'texts/batman']
+		self.paths = ['texts/howl']
 		#paths = ['texts/dancarlin']
 		self.channels = {}
-		for path in paths:
-			source_text = file(path).read()
-			name = path.split('/')[-1]
-			corpus = Corpus(source_text, name)
-			self.channels[name] = Channel(self, self.text, corpus)
-			self.active_channel = name
+		self.channels_from_paths()
 		
 #		self.source_text = file(path).read()
 #		self.corpus = Corpus(self.source_text, 'howl')
 #		self.channels = [Channel(self, self.text, self.corpus)]
 
+	def channels_from_paths(self):
+		for path in self.paths:
+			source_text = file(path).read()
+			name = path.split('/')[-1]
+			if not name in self.channels:
+				corpus = Corpus(source_text, name)
+				self.channels[name] = Channel(self, self.text, corpus)
+				self.active_channel = name
+
 	def onScrape(self):
 		self.sw = ScrapeWindow(Toplevel(self))
 	
 	def onLoad(self):
-		self.load_window = LoadWindow(Toplevel(self))
+		self.load_window = LoadWindow(Toplevel(self), self)
 
 	def refresh_keyboards(self):
+		self.channels_from_paths()
 		for key in self.channels:
 			channel = self.channels[key]
 			channel.refresh_keyboard()
