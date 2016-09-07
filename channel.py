@@ -5,6 +5,7 @@ import tkFont
 from tkSimpleDialog import askstring
 from tkFileDialog   import asksaveasfilename
 import corpus
+import operator
 
 class Channel(Frame):
 	def __init__(self, parent, text, corpus):
@@ -12,7 +13,7 @@ class Channel(Frame):
 		self.channel_name = corpus.name
 		self.parent = parent
 		self.text = text
-		self.corpus = corpus
+		self.corpora = [corpus]
 		self.font = parent.font
 		self.pack(side = LEFT)
 		self.keyboard = Frame()
@@ -28,9 +29,10 @@ class Channel(Frame):
 		current_row = Frame(keyboard)
 		for i in range(len(wordlist)):
 			optkey = Frame(current_row)
-			Label(optkey, text = str(i+1), width = 8, anchor = W, font = self.font).pack(side = LEFT)
+			num = (i + 1) % 10
+			Label(optkey, text = str(num), width = 8, anchor = W, font = self.font).pack(side = LEFT)
 			option = wordlist[i]
-			num = i + 1
+			num = (i + 1) % 10
 			label = option
 			b = Button(optkey, text=label, font = self.font, width = 14, anchor = W, borderwidth = 0, 
 			command= lambda word=option: self.parent.onAddWord(word))
@@ -55,17 +57,32 @@ class Channel(Frame):
 		self.keyboard.destroy()
 		self.keyboard = self.make_keyboard(self, self.options)
 		self.keyboard.pack(anchor = W)
+		
+	# given two dictionaries, returns a dictionary with their values added
+	def combine_dicts(self, a, b, op=operator.add):
+		return dict(a.items() + b.items() + [(k, op(a[k], b[k])) for k in set(b) & set(a)])
 	
+	# given a list of dictionaries, returns a dictionary with their values added
+	def combine_dlist(self, dlist):
+		if len(dlist) == 0:
+			return "Can't combine empty list of dictionaries!"
+		elif len(dlist) == 1:
+			return dlist[0]
+		else:
+			return self.combine_dlist(self.combine_dicts(dlist[0],dlist[1] + dlist[2:]))
+			
 	def get_options(self):
 		previous_words = self.parent.get_previous()
-		print "prev:",previous_words
 		next_words = self.parent.get_next()
-		print "next:",next_words
-		suggestions = self.corpus.suggest(previous_words, next_words)[0:9]
+		
+		
+		for c in self.corpora:
+			suggestions = c.suggest(previous_words, next_words)[0:10]
+		#aggregate = self.combine_dlist
+				
 		only_words = []
 		for word, score in suggestions:
 			only_words.append(word)
-		print only_words
 		return only_words
 
 

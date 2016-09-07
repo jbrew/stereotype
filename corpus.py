@@ -53,7 +53,7 @@ class Corpus(object):
 
         # go through each sentence, add each word to the dictionary, incrementing length each time
         for sentence in sentences:
-            sentence = ['START_SENTENCE'] + sentence
+            sentence = ['[$]'] + sentence
             for ngram_size in range(0, self.max_ngram_size+1):
                 for start in range(0, len(sentence)):
                     end = start + ngram_size
@@ -185,6 +185,7 @@ class Corpus(object):
                 else:
                     suggestions[key] += value
 
+		# TODO: change this function so it returns a dictionary; do the sorting in the channel
         suggestion_list = list(reversed(sorted(suggestions.items(), key=operator.itemgetter(1))))
 
         return suggestion_list

@@ -5,6 +5,8 @@ from tkFileDialog   import asksaveasfilename
 from corpus import Corpus
 from ngram import Ngram
 from channel import Channel
+from scrape_window import ScrapeWindow
+from load_window import LoadWindow
 
 class ScrolledText(Frame):
     def __init__(self, parent=None, text='', file=None):
@@ -36,15 +38,17 @@ class Editor(Frame):
 		Frame.__init__(self, parent)
 		self.pack(expand=YES, fill=BOTH)
 		self.font = tkFont.Font(family="Helvetica", size=12)
+		Button(self, text='Load',  command=self.onLoad).pack()
 		self.text_frame = ScrolledText(self)
 		self.text = self.text_frame.text
+		
 		self.text.bind('<BackSpace>', self.onDelWord)
 		self.text.bind('<Return>', self.onReturn)
 		self.text.bind('<Left>', self.onArrowLeft)
 		self.text.bind('<Right>', self.onArrowRight)
 		self.text.bind('<Tab>', self.onTabCycle)
-		path = 'texts/howl'
 		paths = ['texts/howl', 'texts/batman']
+		#paths = ['texts/dancarlin']
 		self.channels = {}
 		for path in paths:
 			source_text = file(path).read()
@@ -52,9 +56,16 @@ class Editor(Frame):
 			corpus = Corpus(source_text, name)
 			self.channels[name] = Channel(self, self.text, corpus)
 			self.active_channel = name
+		
 #		self.source_text = file(path).read()
 #		self.corpus = Corpus(self.source_text, 'howl')
 #		self.channels = [Channel(self, self.text, self.corpus)]
+
+	def onScrape(self):
+		self.sw = ScrapeWindow(Toplevel(self))
+	
+	def onLoad(self):
+		self.load_window = LoadWindow(Toplevel(self))
 
 	def refresh_keyboards(self):
 		for key in self.channels:
@@ -127,12 +138,6 @@ class Editor(Frame):
 			
 	def onGetNext(self):
 		print self.get_next()
-		
-		
-class LoadWindow(Frame):
-	def __init__(self, parent=None):
-		Frame.__init__(self, parent)
-    
 
 
 Editor().mainloop()
