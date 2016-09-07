@@ -47,7 +47,7 @@ class Editor(Frame):
 		self.text.bind('<Left>', self.onArrowLeft)
 		self.text.bind('<Right>', self.onArrowRight)
 		self.text.bind('<Tab>', self.onTabCycle)
-		self.paths = ['texts/howl']
+		self.paths = ['texts/howl', 'texts/batman']
 		#paths = ['texts/dancarlin']
 		self.channels = {}
 		self.channels_from_paths()
