@@ -80,6 +80,10 @@ class Editor(Frame):
 	
 	# goes to the next channel on tab press
 	def onTabCycle(self, event):
+		self.cycle()
+		return 'break'
+		
+	def cycle(self):
 		cur_index = self.channels.keys().index(self.active_channel)
 		print cur_index
 		next_index = (cur_index + 1) % len(self.channels.keys())
@@ -87,7 +91,7 @@ class Editor(Frame):
 		self.active_channel = self.channels.keys()[next_index]
 		print "active: ",self.active_channel
 		self.channels[self.active_channel].refresh_keyboard()
-		return 'break'
+		
 	
 	def onReturn(self, event):
 		self.refresh_keyboards()

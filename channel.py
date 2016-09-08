@@ -23,6 +23,7 @@ class Channel(Frame):
 		keyboard = Frame(parent, padx = 10)
 		header = Frame(keyboard)
 		Label(header, text = self.channel_name).pack()
+		Button(header, text = 'X', command = self.onDel).pack(side = RIGHT)
 		self.wt_scale = Scale(header, from_=-100, to=100, orient=HORIZONTAL)
 		self.wt_scale.pack()
 		header.pack()
@@ -45,11 +46,17 @@ class Channel(Frame):
 	def getWeight(self):
 		return self.wt_scale.get()
 	
+	def onDel(self):
+		del self.master.channels[self.channel_name]
+		self.master.cycle()
+		self.destroy()
+	
 	def onAddWord(self, word):
 		t = self.text
 		t.insert(INSERT, " "+str(word))
 		t.see(END)
 		self.refresh_keyboard()
+		#self.master.refresh_keyboards()
 		return 'break'
 	
 	def refresh_keyboard(self):
