@@ -5,7 +5,7 @@ from tkFileDialog   import asksaveasfilename
 from corpus import Corpus
 from ngram import Ngram
 from channel import Channel
-from scrape_window import ScrapeWindow
+#from scrape_window import ScrapeWindow
 from load_window import LoadWindow
 
 class ScrolledText(Frame):
@@ -65,9 +65,10 @@ class Editor(Frame):
 				self.channels[name] = Channel(self, self.text, corpus)
 				self.active_channel = name
 
+"""
 	def onScrape(self):
 		self.sw = ScrapeWindow(Toplevel(self))
-	
+"""	
 	def onLoad(self):
 		self.load_window = LoadWindow(Toplevel(self), self)
 
