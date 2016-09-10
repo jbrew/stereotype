@@ -21,7 +21,7 @@ class Editor(Frame):
 		self.paths = ['texts/howl', 'texts/batman']
 		#paths = ['texts/dancarlin']
 		self.channels = self.channels_from_paths(self.paths)
-		self.active_channel = 0
+		self.select_channel(0)
 		self.textbox.bind('<BackSpace>', self.onDelWord)
 		self.textbox.bind('<Return>', self.onReturn)
 		self.textbox.bind('<Left>', self.onArrowLeft)
@@ -29,6 +29,11 @@ class Editor(Frame):
 		self.textbox.bind('<Tab>', self.onTab)
 		self.textbox.bind('<Shift-Tab>', self.onShiftTab)
 		self.textbox.bind('c', self.printChannels)
+
+	# selects channel n
+	def select_channel(self, n):
+		self.active_number = n
+		self.refresh_keyboards()
 
 	def channels_from_paths(self, paths, channels = []):
 		for path in paths:
@@ -42,7 +47,7 @@ class Editor(Frame):
 	def printChannels(self, event):
 		for channel_num in range(len(self.channels)):
 			print channel_num, self.channels[channel_num].channel_name
-		print "active:", self.active_channel
+		print "active:", self.active_number
 
 	# returns true if one of the channels in a list of channels has the given name
 	def name_in_channels(self, name, channel_list):
@@ -58,11 +63,16 @@ class Editor(Frame):
 	def onLoad(self):
 		self.load_window = LoadWindow(Toplevel(self), self)
 
-	def refresh_keyboards(self):
-		for channel in self.channels:
-			channel.refresh_keyboard()
-		self.channels[self.active_channel].refresh_keyboard()
-	
+	def refresh_keyboards(self):	
+		for cnum in range(len(self.channels)):
+			channel = self.channels[cnum]
+			if not cnum == self.active_number:
+				channel.settings['color'] = 'black'
+				channel.refresh_keyboard()
+			active_channel = self.channels[self.active_number]
+			active_channel.settings['color'] = 'blue'
+			active_channel.refresh_keyboard()
+				
 	# goes to the next channel on tab press
 	def onTab(self, event):
 		self.cycle(1)
@@ -73,8 +83,8 @@ class Editor(Frame):
 		return 'break'
 		
 	def cycle(self, n):
-		self.active_channel = (self.active_channel + n) % len(self.channels)
-		self.channels[self.active_channel].refresh_keyboard()
+		self.active_number = (self.active_number + n) % len(self.channels)
+		self.select_channel(self.active_number)
 		
 	def onReturn(self, event):
 		self.refresh_keyboards()

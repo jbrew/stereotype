@@ -8,9 +8,11 @@ import corpus
 import operator
 
 class Channel(Frame):
-	def __init__(self, parent, textframe, corpus):
+	def __init__(self, parent, textframe, corpus, num=0):
 		Frame.__init__(self, parent)
 		self.channel_name = corpus.name
+		self.channel_num = num
+		self.settings = {'color': 'black'}
 		self.parent = parent
 		self.textframe = textframe
 		self.corpora = [corpus]
@@ -18,11 +20,13 @@ class Channel(Frame):
 		self.pack(side = LEFT)
 		self.keyboard = Frame()
 		self.refresh_keyboard()
+
 	
 	def make_keyboard(self, parent, wordlist):
 		keyboard = Frame(parent, padx = 10)
 		header = Frame(keyboard)
-		Label(header, text = self.channel_name).pack()
+		self.title = Label(header, text = self.channel_name, fg = self.settings['color'])
+		self.title.pack()
 		Button(header, text = 'X', command = self.onDel).pack(side = RIGHT)
 		self.wt_scale = Scale(header, from_=-100, to=100, orient=HORIZONTAL)
 		self.wt_scale.pack()
