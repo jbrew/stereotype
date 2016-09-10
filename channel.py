@@ -8,11 +8,11 @@ import corpus
 import operator
 
 class Channel(Frame):
-	def __init__(self, parent, text, corpus):
+	def __init__(self, parent, textframe, corpus):
 		Frame.__init__(self, parent)
 		self.channel_name = corpus.name
 		self.parent = parent
-		self.text = text
+		self.textframe = textframe
 		self.corpora = [corpus]
 		self.font = parent.font
 		self.pack(side = LEFT)
@@ -38,7 +38,7 @@ class Channel(Frame):
 			b = Button(optkey, text=label, font = self.font, width = 14, anchor = W, borderwidth = 0, 
 			command= lambda word=option: self.parent.onAddWord(word))
 			b.pack(side = LEFT)
-			self.text.bind(str(num), lambda event, arg=option: self.onAddWord(arg))
+			self.textframe.bind(str(num), lambda event, arg=option: self.onAddWord(arg))
 			optkey.pack(side = TOP)
 		current_row.pack()		
 		return keyboard
@@ -52,7 +52,7 @@ class Channel(Frame):
 		self.destroy()
 	
 	def onAddWord(self, word):
-		t = self.text
+		t = self.textframe
 		t.insert(INSERT, " "+str(word))
 		t.see(END)
 		self.refresh_keyboard()

@@ -7,31 +7,7 @@ from ngram import Ngram
 from channel import Channel
 #from scrape_window import ScrapeWindow
 from load_window import LoadWindow
-
-class ScrolledText(Frame):
-    def __init__(self, parent=None, text='', file=None):
-        Frame.__init__(self, parent)
-        self.pack(expand=YES, fill=BOTH)
-        self.makewidgets()
-        self.settext(text, file)
-        
-    def makewidgets(self):
-        sbar = Scrollbar(self)
-        text = Text(self, relief=SUNKEN, takefocus = True, wrap = WORD, height = 10)
-        sbar.config(command=text.yview)
-        text.config(yscrollcommand=sbar.set)
-        sbar.pack(side=RIGHT, fill=Y)
-        text.pack(side=LEFT, expand=YES, fill=BOTH)
-        self.text = text
-    def settext(self, text='', file=None):
-        if file:
-            text = open(file, 'r').read()
-        self.text.delete('1.0', END)
-        self.text.insert('1.0', text)
-        self.text.mark_set(INSERT, '1.0')
-        self.text.focus()
-    def gettext(self):
-        return self.text.get('1.0', END+'-1c')
+from text_window import ScrolledText
 
 class Editor(Frame):
 	def __init__(self, parent=None):
@@ -40,60 +16,66 @@ class Editor(Frame):
 		self.font = tkFont.Font(family="Helvetica", size=12)
 		Button(self, text='Load',  command=self.onLoad).pack()
 		self.text_frame = ScrolledText(self)
-		self.text = self.text_frame.text
+		self.textbox = self.text_frame.text
 		
-		self.text.bind('<BackSpace>', self.onDelWord)
-		self.text.bind('<Return>', self.onReturn)
-		self.text.bind('<Left>', self.onArrowLeft)
-		self.text.bind('<Right>', self.onArrowRight)
-		self.text.bind('<Tab>', self.onTabCycle)
 		self.paths = ['texts/howl', 'texts/batman']
 		#paths = ['texts/dancarlin']
-		self.channels = {}
-		self.channels_from_paths()
-		
-#		self.source_text = file(path).read()
-#		self.corpus = Corpus(self.source_text, 'howl')
-#		self.channels = [Channel(self, self.text, self.corpus)]
+		self.channels = self.channels_from_paths(self.paths)
+		self.active_channel = 0
+		self.textbox.bind('<BackSpace>', self.onDelWord)
+		self.textbox.bind('<Return>', self.onReturn)
+		self.textbox.bind('<Left>', self.onArrowLeft)
+		self.textbox.bind('<Right>', self.onArrowRight)
+		self.textbox.bind('<Tab>', self.onTab)
+		self.textbox.bind('<Shift-Tab>', self.onShiftTab)
+		self.textbox.bind('c', self.printChannels)
 
-	def channels_from_paths(self):
-		for path in self.paths:
-			source_text = file(path).read()
-			name = path.split('/')[-1]
-			if not name in self.channels:
+	def channels_from_paths(self, paths, channels = []):
+		for path in paths:
+			name = path.split('/')[1:]	
+			if not self.name_in_channels(name, channels):
+				source_text = file(path).read()
 				corpus = Corpus(source_text, name)
-				self.channels[name] = Channel(self, self.text, corpus)
-				self.active_channel = name
+				channels.append(Channel(self, self.textbox, corpus))
+		return channels
 
-"""
+	def printChannels(self, event):
+		for channel_num in range(len(self.channels)):
+			print channel_num, self.channels[channel_num].channel_name
+		print "active:", self.active_channel
+
+	# returns true if one of the channels in a list of channels has the given name
+	def name_in_channels(self, name, channel_list):
+		found = False
+		for channel in channel_list:
+			if channel.channel_name == name:
+				found = True
+		return found
+
 	def onScrape(self):
 		self.sw = ScrapeWindow(Toplevel(self))
-"""	
+
 	def onLoad(self):
 		self.load_window = LoadWindow(Toplevel(self), self)
 
 	def refresh_keyboards(self):
-		self.channels_from_paths()
-		for key in self.channels:
-			channel = self.channels[key]
+		for channel in self.channels:
 			channel.refresh_keyboard()
 		self.channels[self.active_channel].refresh_keyboard()
 	
 	# goes to the next channel on tab press
-	def onTabCycle(self, event):
-		self.cycle()
+	def onTab(self, event):
+		self.cycle(1)
 		return 'break'
 		
-	def cycle(self):
-		cur_index = self.channels.keys().index(self.active_channel)
-		print cur_index
-		next_index = (cur_index + 1) % len(self.channels.keys())
-		print next_index
-		self.active_channel = self.channels.keys()[next_index]
-		print "active: ",self.active_channel
+	def onShiftTab(self, event):
+		self.cycle(-1)
+		return 'break'
+		
+	def cycle(self, n):
+		self.active_channel = (self.active_channel + n) % len(self.channels)
 		self.channels[self.active_channel].refresh_keyboard()
 		
-	
 	def onReturn(self, event):
 		self.refresh_keyboards()
 		return 'break'
@@ -102,17 +84,17 @@ class Editor(Frame):
 		t = self.text_frame.text
 		prev_wordbreak = t.search(' ', INSERT, stopindex='1.0', backwards=True)
 		if prev_wordbreak:
-			self.text.mark_set(INSERT, '%s+1c' % prev_wordbreak)
+			self.textbox.mark_set(INSERT, '%s+1c' % prev_wordbreak)
 		else:
-			self.text.mark_set(INSERT, '1.0')
+			self.textbox.mark_set(INSERT, '1.0')
 		
 	def onArrowRight(self, event):
 		t = self.text_frame.text
 		next_wordbreak = t.search(' ', '%s+1c' %INSERT, stopindex='end')
 		if next_wordbreak:
-			self.text.mark_set(INSERT, '%s-1c' % next_wordbreak)
+			self.textbox.mark_set(INSERT, '%s-1c' % next_wordbreak)
 		else:
-			self.text.mark_set(INSERT, END)
+			self.textbox.mark_set(INSERT, END)
 	
 	def onDelWord(self, event):
 		t = self.text_frame.text
@@ -130,7 +112,7 @@ class Editor(Frame):
 		self.refresh_keyboards()
 	
 	def get_previous(self):
-		previous = self.text.get('insert linestart', INSERT).split()
+		previous = self.textbox.get('insert linestart', INSERT).split()
 		if len(previous)>=2:
 			return previous[-2:]
 		else:
@@ -140,7 +122,7 @@ class Editor(Frame):
 		print self.get_previous()
 
 	def get_next(self):
-		next = self.text.get(INSERT, 'insert lineend').split()
+		next = self.textbox.get(INSERT, 'insert lineend').split()
 		if len(next)>=2:
 			return next[0:2]
 		else:

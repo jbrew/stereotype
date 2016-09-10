@@ -1,11 +1,12 @@
 from Tkinter import *
 import os
 from os.path import isfile, isdir, join
+from channel import Channel
 
 class LoadWindow(Frame):
-	def __init__(self, parent=None, home=None):
+	def __init__(self, parent=None, mainwindow=None):
 		Frame.__init__(self, parent)
-		self.home = home
+		self.mainwindow = mainwindow
 		self.path = 'texts'
 		self.path_list = []
 		self.full_list = os.listdir(self.path)
@@ -21,7 +22,7 @@ class LoadWindow(Frame):
 		sel_pane.pack(side = RIGHT)
 		for path in self.selected:
 			Label(sel_pane, text = path).pack()
-		Button(sel_pane, text = "Load", command = self.setPathList).pack()
+		Button(sel_pane, text = "Load", command = self.addSelectedChannels).pack()
 		return sel_pane
 		
 	def make_directory_pane(self):
@@ -79,12 +80,12 @@ class LoadWindow(Frame):
 		self.sel_pane.destroy()
 		self.sel_pane = self.make_selection_pane()
 		
-	def setPathList(self):
+	def addSelectedChannels(self):
 		for key in self.selected:
 			self.path_list.append(key)
-		self.home.paths += self.path_list
-		print self.home.paths
-		self.home.refresh_keyboards()
+		self.mainwindow.channels = self.mainwindow.channels_from_paths(self.path_list, self.mainwindow.channels)
+		self.mainwindow.refresh_keyboards()
+		self.master.destroy()
 		
 	def changePath(self, newpath):
 		self.path = newpath
