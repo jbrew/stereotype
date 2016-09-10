@@ -34,6 +34,11 @@ class Editor(Frame):
 	def select_channel(self, n):
 		self.active_number = n
 		self.refresh_keyboards()
+		
+	def removeChannel(self, channel_num):
+		del self.channels[channel_num]
+		if self.active_number == channel_num:
+			self.select_channel(0)	
 
 	def channels_from_paths(self, paths, channels = []):
 		for path in paths:
@@ -41,7 +46,7 @@ class Editor(Frame):
 			if not self.name_in_channels(name, channels):
 				source_text = file(path).read()
 				corpus = Corpus(source_text, name)
-				channels.append(Channel(self, self.textbox, corpus))
+				channels.append(Channel(self, self.textbox, corpus, len(channels)))
 		return channels
 
 	def printChannels(self, event):
@@ -66,13 +71,16 @@ class Editor(Frame):
 	def refresh_keyboards(self):	
 		for cnum in range(len(self.channels)):
 			channel = self.channels[cnum]
+		#	channel.bind('<Button-1>', lambda cnum = cnum: self.select_channel(cnum))
 			if not cnum == self.active_number:
 				channel.settings['color'] = 'black'
 				channel.refresh_keyboard()
 			active_channel = self.channels[self.active_number]
 			active_channel.settings['color'] = 'blue'
 			active_channel.refresh_keyboard()
-				
+		#for cnum in range(len(self.channels)):
+		#	channel.keyboard.bind('<Button-1>', lambda cnum = cnum: self.select_channel(cnum))
+		
 	# goes to the next channel on tab press
 	def onTab(self, event):
 		self.cycle(1)

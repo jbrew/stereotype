@@ -40,7 +40,7 @@ class Channel(Frame):
 			num = (i + 1) % 10
 			label = option
 			b = Button(optkey, text=label, font = self.font, width = 14, anchor = W, borderwidth = 0, 
-			command= lambda word=option: self.parent.onAddWord(word))
+			command= lambda word=option: self.onAddWord(word))
 			b.pack(side = LEFT)
 			self.textframe.bind(str(num), lambda event, arg=option: self.onAddWord(arg))
 			optkey.pack(side = TOP)
@@ -51,8 +51,7 @@ class Channel(Frame):
 		return self.wt_scale.get()
 	
 	def onDel(self):
-		del self.master.channels[self.channel_name]
-		self.master.cycle()
+		self.master.removeChannel(self.channel_num)
 		self.destroy()
 	
 	def onAddWord(self, word):
