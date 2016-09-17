@@ -4,16 +4,19 @@ from tkSimpleDialog import askstring
 from tkFileDialog   import asksaveasfilename
 
 
+
 class ScrolledText(Frame):
     def __init__(self, parent=None, text='', file=None):
         Frame.__init__(self, parent)
         self.pack(expand=YES, fill=BOTH)
         self.makewidgets()
         self.settext(text, file)
+
         
     def makewidgets(self):
         sbar = Scrollbar(self)
-        text = Text(self, relief=SUNKEN, takefocus = True, wrap = WORD, height = 10)
+       	font = tkFont.Font(size=12)
+        text = Text(self, relief=SUNKEN, font = font, takefocus = True, wrap = WORD, height = 6)
         sbar.config(command=text.yview)
         text.config(yscrollcommand=sbar.set)
         sbar.pack(side=RIGHT, fill=Y)

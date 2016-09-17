@@ -17,9 +17,8 @@ class Editor(Frame):
 		Button(self, text='Load',  command=self.onLoad).pack()
 		self.text_frame = ScrolledText(self)
 		self.textbox = self.text_frame.text
-		
-		self.paths = ['texts/howl', 'texts/batman']
-		#paths = ['texts/dancarlin']
+		self.paths = ['texts/bowie', 'texts/cosmos_sagan']
+		#self.paths = []
 		self.channels = self.channels_from_paths(self.paths)
 		self.select_channel(0)
 		self.textbox.bind('<BackSpace>', self.onDelWord)
@@ -28,7 +27,7 @@ class Editor(Frame):
 		self.textbox.bind('<Right>', self.onArrowRight)
 		self.textbox.bind('<Tab>', self.onTab)
 		self.textbox.bind('<Shift-Tab>', self.onShiftTab)
-		self.textbox.bind('c', self.printChannels)
+		#self.textbox.bind('c', self.printChannels)
 
 	# selects channel n
 	def select_channel(self, n):
@@ -105,14 +104,16 @@ class Editor(Frame):
 			self.textbox.mark_set(INSERT, '%s+1c' % prev_wordbreak)
 		else:
 			self.textbox.mark_set(INSERT, '1.0')
+		self.refresh_keyboards()
 		
 	def onArrowRight(self, event):
 		t = self.text_frame.text
 		next_wordbreak = t.search(' ', '%s+1c' %INSERT, stopindex='end')
 		if next_wordbreak:
-			self.textbox.mark_set(INSERT, '%s-1c' % next_wordbreak)
+			self.textbox.mark_set(INSERT, '%s-1c' % next_wordbreak) #TODO: fix this so that it grabs the right characters
 		else:
 			self.textbox.mark_set(INSERT, END)
+		self.refresh_keyboards()
 	
 	def onDelWord(self, event):
 		t = self.text_frame.text

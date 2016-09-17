@@ -12,6 +12,8 @@ class Channel(Frame):
 		Frame.__init__(self, parent)
 		self.channel_name = corpus.name
 		self.channel_num = num
+		self.mode = 'shift'
+		self.num_options = 16
 		self.settings = {'color': 'black'}
 		self.parent = parent
 		self.textframe = textframe
@@ -21,7 +23,20 @@ class Channel(Frame):
 		self.keyboard = Frame()
 		self.refresh_keyboard()
 
-	
+	# the second member of the ith tuple is the keystroke to input option i. the first member is what the button is labeled
+	def optionmap(self):
+		if self.mode == 'alpha':
+			return [('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), 
+				('6', '6'), ('7', '7'), ('8', '8'), ('9', '9'), ('0', '0'),
+				('a', 'a'), ('b', 'b'), ('c', 'c'), ('d', 'd'), ('e', 'e'), 
+				('f', 'f'), ('g', 'g'), ('h', 'h'), ('i', 'i'), ('j', 'j')]
+		elif self.mode == 'shift':
+			return [('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), 
+				('6', '6'), ('7', '7'), ('8', '8'), ('9', '9'), ('0', '0'),
+				('1*', '!'), ('2*', '@'), ('3*', '#'), ('4*', '$'), ('5*', '%'), 
+				('6*', '^'), ('7*', '&'), ('8*', '*'), ('9*', '('), ('0*', ')')]
+		
+		
 	def make_keyboard(self, parent, wordlist):
 		keyboard = Frame(parent, padx = 10)
 		header = Frame(keyboard)
@@ -35,14 +50,20 @@ class Channel(Frame):
 		for i in range(len(wordlist)):
 			optkey = Frame(current_row)
 			num = (i + 1) % 10
-			Label(optkey, text = str(num), width = 8, anchor = W, font = self.font).pack(side = LEFT)
+			keylabel = '%s.' % self.optionmap()[i][0]
+			keystroke = self.optionmap()[i][1]
+			#keystroke = str(num)
+			#keylabel = keystroke
+			#if i >= 10:
+			#	keystroke = '<Shift-%s>' % keystroke
+			#	keylabel = '%s *' % str(num)
+			Label(optkey, text = keylabel, width = 4, anchor = W, font = self.font).pack(side = LEFT)
 			option = wordlist[i]
-			num = (i + 1) % 10
 			label = option
 			b = Button(optkey, text=label, font = self.font, width = 14, anchor = W, borderwidth = 0, 
-			command= lambda word=option: self.onAddWord(word))
+			command= lambda word=option: self.onAddWord(word), pady = 0)
 			b.pack(side = LEFT)
-			self.textframe.bind(str(num), lambda event, arg=option: self.onAddWord(arg))
+			self.textframe.bind(keystroke, lambda event, arg=option: self.onAddWord(arg))
 			optkey.pack(side = TOP)
 		current_row.pack()		
 		return keyboard
@@ -87,7 +108,7 @@ class Channel(Frame):
 		
 		
 		for c in self.corpora:
-			suggestions = c.suggest(previous_words, next_words)[0:10]
+			suggestions = c.suggest(previous_words, next_words)[0:self.num_options]
 		#aggregate = self.combine_dlist
 				
 		only_words = []
