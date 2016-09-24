@@ -12,7 +12,6 @@ class ScrolledText(Frame):
         self.makewidgets()
         self.settext(text, file)
 
-        
     def makewidgets(self):
         sbar = Scrollbar(self)
        	font = tkFont.Font(size=12)

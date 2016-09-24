@@ -17,9 +17,12 @@ class Editor(Frame):
 		Button(self, text='Load',  command=self.onLoad).pack()
 		self.text_frame = ScrolledText(self)
 		self.textbox = self.text_frame.text
-		self.paths = ['texts/bowie', 'texts/cosmos_sagan']
-		#self.paths = []
+		self.paths = ['texts/batman']
 		self.channels = self.channels_from_paths(self.paths)
+		#num_opt_dict = {'3': 3,'5': 5,'20':20}
+		#self.num_options = 16
+		#self.opt_box = self.make_num_opt_menu(self, num_opt_dict, 'Number of options')
+		#self.opt_box.pack()
 		self.select_channel(0)
 		self.textbox.bind('<BackSpace>', self.onDelWord)
 		self.textbox.bind('<Return>', self.onReturn)
@@ -48,11 +51,6 @@ class Editor(Frame):
 				channels.append(Channel(self, self.textbox, corpus, len(channels)))
 		return channels
 
-	def printChannels(self, event):
-		for channel_num in range(len(self.channels)):
-			print channel_num, self.channels[channel_num].channel_name
-		print "active:", self.active_number
-
 	# returns true if one of the channels in a list of channels has the given name
 	def name_in_channels(self, name, channel_list):
 		found = False
@@ -60,6 +58,11 @@ class Editor(Frame):
 			if channel.channel_name == name:
 				found = True
 		return found
+
+	def printChannels(self, event):
+		for channel_num in range(len(self.channels)):
+			print channel_num, self.channels[channel_num].channel_name
+		print "active:", self.active_number
 
 	def onScrape(self):
 		self.sw = ScrapeWindow(Toplevel(self))
@@ -139,6 +142,17 @@ class Editor(Frame):
 	
 	def onGetPrev(self):
 		print self.get_previous()
+		
+	def make_num_opt_menu(self, parent, dictionary, title):
+		panel = Frame(parent)
+		Label(panel, text = title).pack()
+		ref_list = []
+		var = 1
+		for key in dictionary:
+			b = Radiobutton(panel, text=key, variable=var, value=dictionary[key], command = self.setNumOptions)
+			ref_list.append(b)
+			b.pack(anchor=W)
+		return panel
 
 	def get_next(self):
 		next = self.textbox.get(INSERT, 'insert lineend').split()
@@ -149,6 +163,10 @@ class Editor(Frame):
 			
 	def onGetNext(self):
 		print self.get_next()
+	
+	def setNumOptions(self):
+		for c in self.channels:
+			c.num_options = self.opt_box.get()
 
 
 Editor().mainloop()
