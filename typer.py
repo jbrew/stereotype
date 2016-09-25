@@ -17,7 +17,7 @@ class Editor(Frame):
 		Button(self, text='Load',  command=self.onLoad).pack()
 		self.text_frame = ScrolledText(self)
 		self.textbox = self.text_frame.text
-		self.paths = ['texts/batman']
+		self.paths = ['texts/batman','texts/bowie']
 		self.channels = self.channels_from_paths(self.paths)
 		#num_opt_dict = {'3': 3,'5': 5,'20':20}
 		#self.num_options = 16
@@ -30,6 +30,7 @@ class Editor(Frame):
 		self.textbox.bind('<Right>', self.onArrowRight)
 		self.textbox.bind('<Tab>', self.onTab)
 		self.textbox.bind('<Shift-Tab>', self.onShiftTab)
+		self.textbox.bind('D', self.onDebug)
 		#self.textbox.bind('c', self.printChannels)
 
 	# selects channel n
@@ -167,6 +168,13 @@ class Editor(Frame):
 	def setNumOptions(self):
 		for c in self.channels:
 			c.num_options = self.opt_box.get()
+	
+	def onDebug(self, event):
+		for ch in self.channels:
+			for corpus in ch.corpora:
+				print corpus.name
+				print len(corpus.memory)
+		return 'break'
 
 
 Editor().mainloop()

@@ -21,15 +21,11 @@ class Corpus(object):
         self.foresight = foresight
         self.hindsight = hindsight
         self.min_word_count = min_word_count
+        self.memory = {}
 
         self.wordcount = 0
         self.tree = {}
         self.make_tree()
-
-
-	def maketree2(self, text):
-		tokens = self.text.split('.\n' or '. ' or '?' or '!').join('[$]').split(' ')
-
 
     # The list of words in a given list of sentences that have a count greater than
     # or equal to the minimum word count
@@ -134,61 +130,70 @@ class Corpus(object):
     # given a sentence and an insertion position in that sentence, yields a list of words likely to occur at that position
     # based on adjacent words and baseline frequency
     def suggest(self, preceding, following):
+    	
+    	# hash table check
+    	context = (''.join(preceding), ''.join(following))
+    	if context in self.memory:
+    		return self.memory[context]
+    	else:
+			suggestions = {}
+			
+			# look at previous words in sentence, and all the words occurring after them
+			for reach in range(1, self.hindsight+1):
+				for ngram_size in range(1, self.max_ngram_size+1):
+					if len(preceding)+1 >= reach+ngram_size:
+						end_of_ngram = len(preceding)-reach
+						start_of_ngram = end_of_ngram - (ngram_size-1)
+						previous_ngram = " ".join(preceding[start_of_ngram:end_of_ngram+1])
+						after_previous = self.get_after(previous_ngram, reach)
 
-        suggestions = {}
-        # look at previous words in sentence, and all the words occurring after them
-        for reach in range(1, self.hindsight+1):
-            for ngram_size in range(1, self.max_ngram_size+1):
-                if len(preceding)+1 >= reach+ngram_size:
-                    end_of_ngram = len(preceding)-reach
-                    start_of_ngram = end_of_ngram - (ngram_size-1)
-                    previous_ngram = " ".join(preceding[start_of_ngram:end_of_ngram+1])
-                    after_previous = self.get_after(previous_ngram, reach)
+						# crude function for privileging larger n-grams and closer contexts
+						weight = (10**ngram_size)/(10**reach)
+						for tuple in after_previous:
+							key = tuple[0]
+							value = tuple[1] * weight
+							if len(key.split(' ')) == 1:
+								if key not in suggestions:
+									suggestions[key] = value
+								else:
+									suggestions[key] += value
 
-                    # crude function for privileging larger n-grams and closer contexts
-                    weight = (10**ngram_size)/(10**reach)
-                    for tuple in after_previous:
-                        key = tuple[0]
-                        value = tuple[1] * weight
-                        if len(key.split(' ')) == 1:
-                            if key not in suggestions:
-                                suggestions[key] = value
-                            else:
-                                suggestions[key] += value
+			for reach in range(1, self.foresight+1):
+				for ngram_size in range(1, self.max_ngram_size+1):
+					if len(following)+1 >= reach+ngram_size:
+						start_of_ngram = reach - 1
+						end_of_ngram = start_of_ngram + (ngram_size - 1)
+						next_ngram = " ".join(following[start_of_ngram:end_of_ngram+1])
+						before_next = self.get_before(next_ngram, reach)
 
-        for reach in range(1, self.foresight+1):
-            for ngram_size in range(1, self.max_ngram_size+1):
-                if len(following)+1 >= reach+ngram_size:
-                    start_of_ngram = reach - 1
-                    end_of_ngram = start_of_ngram + (ngram_size - 1)
-                    next_ngram = " ".join(following[start_of_ngram:end_of_ngram+1])
-                    before_next = self.get_before(next_ngram, reach)
+						# crude function for privileging larger n-grams and closer contexts
+						weight = (10**ngram_size)/(10**reach)
+						for tuple in before_next:
+							key = tuple[0]
+							value = tuple[1] * weight
+							if len(key.split(' ')) == 1:
+								if key not in suggestions:
+									suggestions[key] = value
+								else:
+									suggestions[key] += value
 
-                    # crude function for privileging larger n-grams and closer contexts
-                    weight = (10**ngram_size)/(10**reach)
-                    for tuple in before_next:
-                        key = tuple[0]
-                        value = tuple[1] * weight
-                        if len(key.split(' ')) == 1:
-                            if key not in suggestions:
-                                suggestions[key] = value
-                            else:
-                                suggestions[key] += value
+			baseline_weight = 0.00000001
+			for key in self.tree:
+				ngram = self.tree[key]
+				value = baseline_weight * getattr(ngram, self.sort_attribute)
+				if len(key.split(' ')) == 1:
+					if key not in suggestions:
+						suggestions[key] = value
+					else:
+						suggestions[key] += value
 
-        baseline_weight = 0.00000001
-        for key in self.tree:
-            ngram = self.tree[key]
-            value = baseline_weight * getattr(ngram, self.sort_attribute)
-            if len(key.split(' ')) == 1:
-                if key not in suggestions:
-                    suggestions[key] = value
-                else:
-                    suggestions[key] += value
-
-		# TODO: change this function so it returns a dictionary; do the sorting in the channel
-        suggestion_list = list(reversed(sorted(suggestions.items(), key=operator.itemgetter(1))))
-
-        return suggestion_list
+			# TODO: change this function so it returns a dictionary; do the sorting in the channel
+			suggestion_list = list(reversed(sorted(suggestions.items(), key=operator.itemgetter(1))))
+			
+			# hash entry
+			self.memory[context] = suggestion_list
+			
+			return suggestion_list
 
     def get_before(self, key, distance=1):
         if key in self.tree:
