@@ -13,19 +13,20 @@ class Editor(Frame):
 	def __init__(self, parent=None):
 		Frame.__init__(self, parent)
 		self.pack(expand=YES, fill=BOTH)
-		self.font = tkFont.Font(family="Helvetica", size=12)
+		self.font = tkFont.Font(family="Helvetica", size=16)
 		Button(self, text='Load',  command=self.onLoad).pack()
 		self.text_frame = ScrolledText(self)
 		self.textbox = self.text_frame.text
-		self.paths = ['texts/batman','texts/bowie']
+		self.paths = ['texts/bowie']
 		self.channels = self.channels_from_paths(self.paths)
+		#self.master_channel = MasterChannel(self.channels)
 		#num_opt_dict = {'3': 3,'5': 5,'20':20}
 		#self.num_options = 16
 		#self.opt_box = self.make_num_opt_menu(self, num_opt_dict, 'Number of options')
 		#self.opt_box.pack()
 		self.select_channel(0)
 		self.textbox.bind('<BackSpace>', self.onDelWord)
-		self.textbox.bind('<Return>', self.onReturn)
+		#self.textbox.bind('<Return>', self.onReturn)
 		self.textbox.bind('<Left>', self.onArrowLeft)
 		self.textbox.bind('<Right>', self.onArrowRight)
 		self.textbox.bind('<Tab>', self.onTab)
@@ -37,15 +38,17 @@ class Editor(Frame):
 	def select_channel(self, n):
 		self.active_number = n
 		self.refresh_keyboards()
-		
-	def removeChannel(self, channel_num):
-		del self.channels[channel_num]
-		if self.active_number == channel_num:
+	
+	# removes channel n
+	def removeChannel(self, n):
+		del self.channels[n]
+		if self.active_number == n:
 			self.select_channel(0)	
 
+	# given a list of paths, and optionally a list of existing channels, adds new channels generated from those paths
 	def channels_from_paths(self, paths, channels = []):
 		for path in paths:
-			name = path.split('/')[1:]	
+			name = path.split('/')[1:]
 			if not self.name_in_channels(name, channels):
 				source_text = file(path).read()
 				corpus = Corpus(source_text, name)
@@ -83,6 +86,33 @@ class Editor(Frame):
 			active_channel.refresh_keyboard()
 		#for cnum in range(len(self.channels)):
 		#	channel.keyboard.bind('<Button-1>', lambda cnum = cnum: self.select_channel(cnum))
+	
+	def get_master(self):
+		keyboard = Frame(self, padx = 10)
+		header = Frame(keyboard)
+		Label(header, text = "master").pack()
+		header.pack()
+		mainkeys = Frame(keyboard)
+		master_list = []
+		for chnl in self.channels:
+			channel_list = chnl.options
+			for word in channel_list:
+				break
+		for i in range(len(wordlist)):
+			optkey = Frame(mainkeys)
+			num = (i + 1) % 10
+			keylabel = '%s.' % Channel.optionmap()[i][0]
+			keystroke = Channel.optionmap()[i][1]
+			Label(optkey, text = keylabel, width = 4, anchor = W, font = self.font).pack(side = LEFT)
+			option = wordlist[i]
+			label = option
+			b = Button(optkey, text=label, font = self.font, width = 14, anchor = W, borderwidth = 0, 
+			command= lambda word=option: self.onAddWord(word), pady = 0)
+			b.pack(side = LEFT)
+			self.textframe.bind(keystroke, lambda event, arg=option: self.onAddWord(arg))
+			optkey.pack(side = TOP)
+		mainkeys.pack()
+		
 		
 	# goes to the next channel on tab press
 	def onTab(self, event):

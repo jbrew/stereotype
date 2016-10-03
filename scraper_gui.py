@@ -25,7 +25,7 @@ class OuterFrame(Frame):
 
 class ScrapeWindow(OuterFrame):
     def __init__(self, parent=None, file=None):
-    	self.scraper = MetacriticScraper('http://www.metacritic.com')
+    	self.scraper = MetacriticSpider('http://www.metacritic.com')
     	self.selected = {}
     	self.results_window = None
     	

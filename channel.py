@@ -13,7 +13,7 @@ class Channel(Frame):
 		self.channel_name = corpus.name
 		self.channel_num = num
 		self.mode = 'shift'
-		self.num_options = 16
+		self.num_options = 20
 		self.settings = {'color': 'black'}
 		self.parent = parent
 		self.textframe = textframe
@@ -23,7 +23,7 @@ class Channel(Frame):
 		self.keyboard = Frame()
 		self.refresh_keyboard()
 
-	# the second member of the ith tuple is the keystroke to input option i. the first member is what the button is labeled
+	# first member of ith tuple is the label. second member is the keystroke to input i
 	def optionmap(self):
 		if self.mode == 'alpha':
 			return [('1', '1'), ('2', '2'), ('3', '3'), ('4', '4'), ('5', '5'), 
@@ -41,22 +41,17 @@ class Channel(Frame):
 		keyboard = Frame(parent, padx = 10)
 		header = Frame(keyboard)
 		self.title = Label(header, text = self.channel_name, fg = self.settings['color'])
-		self.title.pack()
+		self.title.pack(side = LEFT)
 		Button(header, text = 'X', command = self.onDel).pack(side = RIGHT)
 		self.wt_scale = Scale(header, from_=-100, to=100, orient=HORIZONTAL)
-		self.wt_scale.pack()
+		#self.wt_scale.pack()
 		header.pack()
-		current_row = Frame(keyboard)
+		mainkeys = Frame(keyboard)
 		for i in range(len(wordlist)):
-			optkey = Frame(current_row)
+			optkey = Frame(mainkeys)
 			num = (i + 1) % 10
 			keylabel = '%s.' % self.optionmap()[i][0]
 			keystroke = self.optionmap()[i][1]
-			#keystroke = str(num)
-			#keylabel = keystroke
-			#if i >= 10:
-			#	keystroke = '<Shift-%s>' % keystroke
-			#	keylabel = '%s *' % str(num)
 			Label(optkey, text = keylabel, width = 4, anchor = W, font = self.font).pack(side = LEFT)
 			option = wordlist[i]
 			label = option
@@ -65,7 +60,7 @@ class Channel(Frame):
 			b.pack(side = LEFT)
 			self.textframe.bind(keystroke, lambda event, arg=option: self.onAddWord(arg))
 			optkey.pack(side = TOP)
-		current_row.pack()		
+		mainkeys.pack()		
 		return keyboard
 	
 	def getWeight(self):

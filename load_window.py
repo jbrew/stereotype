@@ -18,11 +18,13 @@ class LoadWindow(Frame):
 	
 	def make_selection_pane(self):
 		sel_pane = Frame(self, borderwidth=1, width = self.pane_width, relief=SOLID)
-		Label(sel_pane, text = "selected paths").pack()
+		Label(sel_pane, text = "selected paths").grid(row = 0, column = 0)
 		sel_pane.pack(side = RIGHT)
+		i = 0
 		for path in self.selected:
-			Label(sel_pane, text = path).pack()
-		Button(sel_pane, text = "Load", command = self.addSelectedChannels).pack()
+			Label(sel_pane, text = path).grid(row = i+1, column = 0)
+			i += 1
+		Button(sel_pane, text = "Load", command = self.addSelectedChannels).grid(row = i+1, column = 0)
 		return sel_pane
 		
 	def make_directory_pane(self):
@@ -35,14 +37,16 @@ class LoadWindow(Frame):
 	
 	def make_file_list(self, parent):
 		f_window = Frame(parent, borderwidth=1, relief=SOLID)
-		Label(f_window, text = "files in /%s" % self.path).pack()
+		Label(f_window, text = "files in /%s" % self.path).grid(row = 0, column = 0)
 				
 		onlyfiles = [f for f in self.full_list if isfile(join(self.path, f))]
 		
+		i = 1
 		for f in onlyfiles:
 			full_path = self.path + '/' + f
 			b = Button(f_window, text = f, bd = 1, relief = SUNKEN, command = lambda selpath = full_path: self.selectFile(selpath))
-			b.pack(side = TOP, anchor = W)
+			b.grid(row = i, column = 0, sticky=W)
+			i += 1
 		f_window.pack(pady = 5, padx = 10)
 		return f_window
 	
@@ -73,7 +77,6 @@ class LoadWindow(Frame):
 		self.refresh()
 	
 	def refresh(self):
-		print "current path:", self.path
 		self.full_list = os.listdir(self.path)
 		self.directory_pane.destroy()
 		self.directory_pane = self.make_directory_pane()

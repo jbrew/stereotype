@@ -7,7 +7,7 @@ import string
 rotten tomatoes scraper
 """
 
-class MetacriticScraper(object):
+class AmazonSpider(object):
 
 	def __init__(self, start_url = 'not yet set'):
 		self.start_url = start_url

@@ -90,7 +90,7 @@ class Corpus(object):
             lambda sentence: (
                 sentence.strip('\n') \
                         .translate(string.maketrans('', ''), string.punctuation.replace('\'', '')) \
-                        .lower()
+                        .upper()
                         .split()
             ),
             sentences
