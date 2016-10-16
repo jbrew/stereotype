@@ -84,13 +84,13 @@ class Corpus(object):
 
     # Split text into sentences, lowercase and clean punctuation
     def get_sentences(self):
-        sentences = self.text.split('.\n' or '. ' or '?' or '!')
+        sentences = self.text.split('.\n' or '. ' or '?' or '!' or '"' or "'")
 
         return map(
             lambda sentence: (
                 sentence.strip('\n') \
                         .translate(string.maketrans('', ''), string.punctuation.replace('\'', '')) \
-                        .upper()
+                        .lower()
                         .split()
             ),
             sentences
@@ -148,7 +148,7 @@ class Corpus(object):
 						after_previous = self.get_after(previous_ngram, reach)
 
 						# crude function for privileging larger n-grams and closer contexts
-						weight = (10**ngram_size)/(10**reach)
+						weight = (2**ngram_size)/(2**reach)
 						for tuple in after_previous:
 							key = tuple[0]
 							value = tuple[1] * weight

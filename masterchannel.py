@@ -7,11 +7,12 @@ from tkFileDialog   import asksaveasfilename
 import corpus
 import operator
 
-class Channel(Frame):
-	def __init__(self, parent, textframe, corpus, num=0):
+class MasterChannel(Frame):
+	def __init__(self, parent, textframe, channels):
 		Frame.__init__(self, parent)
-		self.channel_name = corpus.name
-		self.channel_num = num
+		self.channels = channels
+		self.channel_num = len(channels)
+		self.channel_name = 'master'
 		self.mode = 'shift'
 		self.num_options = 20
 		self.settings = {'color': 'black'}
@@ -20,12 +21,8 @@ class Channel(Frame):
 		self.corpus = corpus
 		self.font = parent.font
 		self.pack(side = LEFT)
-		self.current_options = self.get_options()
 		self.keyboard = Frame()
-		self.wt_scale = Scale(from_=-100, to=100, orient=HORIZONTAL)
-		self.wt_scale.set(100)
 		self.refresh_keyboard()
-		self.keyboard.pack(anchor = W)
 
 	# first member of ith tuple is the label. second member is the keystroke to input i
 	def optionmap(self):
@@ -39,16 +36,17 @@ class Channel(Frame):
 				('6', '6'), ('7', '7'), ('8', '8'), ('9', '9'), ('0', '0'),
 				('1*', '!'), ('2*', '@'), ('3*', '#'), ('4*', '$'), ('5*', '%'), 
 				('6*', '^'), ('7*', '&'), ('8*', '*'), ('9*', '('), ('0*', ')')]
-		
-	def make_keyboard(self, parent, wordlist, weight=100):
+
+
+	def make_keyboard(self, parent): 
+		wordlist = self.get_combined_options()
 		keyboard = Frame(parent, padx = 10)
 		header = Frame(keyboard)
 		self.title = Label(header, text = self.channel_name, fg = self.settings['color'])
 		self.title.pack(side = LEFT)
 		Button(header, text = 'X', command = self.onDel).pack(side = RIGHT)
-		self.wt_scale = Scale(header, from_=-100, to=100, orient=HORIZONTAL)
-		self.wt_scale.set(weight)
-		self.wt_scale.pack()
+		#self.wt_scale = Scale(header, from_=-100, to=100, orient=HORIZONTAL)
+		#self.wt_scale.pack()
 		header.pack()
 		mainkeys = Frame(keyboard)
 		for i in range(len(wordlist)):
@@ -78,30 +76,38 @@ class Channel(Frame):
 		t = self.textframe
 		t.insert(INSERT, " "+str(word))
 		t.see(END)
-		self.refresh_keyboard()
-		#self.master.refresh_keyboards()
+		#self.refresh_keyboard()
+		self.master.refresh_keyboards()
 		return 'break'
 	
 	def refresh_keyboard(self):
-		self.current_options = self.get_options()
-		wordlist = []
-		print '\n',self.channel_name
-		for word, score in self.current_options[0:self.num_options]:
-			print word, score * self.wt_scale.get()
-			wordlist.append(word)
-		weight = self.wt_scale.get()
 		self.keyboard.destroy()
-		self.keyboard = self.make_keyboard(self, wordlist, weight)
+		self.keyboard = self.make_keyboard(self)
 		self.keyboard.pack(anchor = W)
 		
-	def get_options(self):
-		previous_words = self.parent.get_previous()
-		next_words = self.parent.get_next()
+	def get_combined_options(self):
+		master_dict = {}
+		for c in self.channels:
+			if not c.channel_name == self.channel_name:
+				channel_weight = c.wt_scale.get()
+				if not channel_weight == 0:
+					for word, score in c.current_options:
+						if word in master_dict:
+							master_dict[word] += score * channel_weight
+						else:
+							master_dict[word] = score * channel_weight
+		master_list = list(reversed(sorted(master_dict.items(), key=operator.itemgetter(1))))
 		
-		full_list = self.corpus.suggest(previous_words, next_words)
-		short_list = full_list[0:100]
-		suggestions = full_list[0:self.num_options]
-		return short_list
-				
-
+		self.current_options = master_list[0:100]
+		
+		suggestions = master_list[0:self.num_options]
+		only_words = []
+		print "\nmaster"
+		for word, score in suggestions:
+			print word, score
+			only_words.append(word)
+		return only_words
+		
+		
+			
 
