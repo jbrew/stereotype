@@ -14,7 +14,7 @@ class MasterChannel(Frame):
 		self.channel_num = len(channels)
 		self.channel_name = 'master'
 		self.mode = 'shift'
-		self.num_options = 20
+		self.num_options = 10
 		self.settings = {'color': 'black'}
 		self.parent = parent
 		self.textframe = textframe

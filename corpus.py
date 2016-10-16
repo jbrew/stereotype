@@ -148,7 +148,7 @@ class Corpus(object):
 						after_previous = self.get_after(previous_ngram, reach)
 
 						# crude function for privileging larger n-grams and closer contexts
-						weight = (2**ngram_size)/(2**reach)
+						weight = (4**ngram_size)/(4**reach)
 						for tuple in after_previous:
 							key = tuple[0]
 							value = tuple[1] * weight
