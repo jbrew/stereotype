@@ -5,6 +5,7 @@ from tkFileDialog   import asksaveasfilename
 from corpus import Corpus
 from ngram import Ngram
 from channel import Channel
+from masterchannel import MasterChannel
 #from scrape_window import ScrapeWindow
 from load_window import LoadWindow
 from text_window import ScrolledText
@@ -17,13 +18,10 @@ class Editor(Frame):
 		Button(self, text='Load',  command=self.onLoad).pack()
 		self.text_frame = ScrolledText(self)
 		self.textbox = self.text_frame.text
-		self.paths = ['texts/janis-joplin.txt','texts/jimi-hendrix.txt','texts/nirvana.txt','texts/the-doors.txt']
+		self.paths = ['texts/janis-joplin.txt','texts/jimi-hendrix.txt','texts/nirvana.txt']
 		self.channels = self.channels_from_paths(self.paths)
-		#self.master_channel = MasterChannel(self.channels)
-		#num_opt_dict = {'3': 3,'5': 5,'20':20}
-		#self.num_options = 16
-		#self.opt_box = self.make_num_opt_menu(self, num_opt_dict, 'Number of options')
-		#self.opt_box.pack()
+		self.master_channel = MasterChannel(self, self.textbox, self.channels) 
+		self.channels.append(self.master_channel)
 		self.select_channel(0)
 		self.textbox.bind('<BackSpace>', self.onDelWord)
 		self.textbox.bind('<Return>', self.onReturn)
@@ -31,8 +29,10 @@ class Editor(Frame):
 		self.textbox.bind('<Right>', self.onArrowRight)
 		self.textbox.bind('<Tab>', self.onTab)
 		self.textbox.bind('<Shift-Tab>', self.onShiftTab)
+		self.textbox.bind('=', self.onPlus)
+		self.textbox.bind('-', self.onMinus)
+		self.textbox.bind('M', self.onMute)
 		self.textbox.bind('D', self.onDebug)
-		#self.textbox.bind('c', self.printChannels)
 
 	# selects channel n
 	def select_channel(self, n):
@@ -77,15 +77,12 @@ class Editor(Frame):
 	def refresh_keyboards(self):	
 		for cnum in range(len(self.channels)):
 			channel = self.channels[cnum]
-		#	channel.bind('<Button-1>', lambda cnum = cnum: self.select_channel(cnum))
 			if not cnum == self.active_number:
 				channel.settings['color'] = 'black'
 				channel.refresh_keyboard()
-			active_channel = self.channels[self.active_number]
-			active_channel.settings['color'] = 'blue'
-			active_channel.refresh_keyboard()
-		#for cnum in range(len(self.channels)):
-		#	channel.keyboard.bind('<Button-1>', lambda cnum = cnum: self.select_channel(cnum))
+		active_channel = self.channels[self.active_number]
+		active_channel.settings['color'] = 'blue'
+		active_channel.refresh_keyboard()
 	
 	def get_master(self):
 		keyboard = Frame(self, padx = 10)
@@ -113,7 +110,26 @@ class Editor(Frame):
 			optkey.pack(side = TOP)
 		mainkeys.pack()
 		
+	
+	def onMute(self, event):
+		self.channels[self.active_number].wt_scale.set(0)
+		self.refresh_keyboards
+		return 'break'
+	
+	# volume up
+	def onPlus(self, event):
+		c = self.channels[self.active_number]
+		c.wt_scale.set(c.wt_scale.get() + 10)
+		self.refresh_keyboards()
+		return 'break'
 		
+	# volume down
+	def onMinus(self, event):
+		c = self.channels[self.active_number]
+		c.wt_scale.set(c.wt_scale.get() - 10)
+		self.refresh_keyboards()
+		return 'break'
+	
 	# goes to the next channel on tab press
 	def onTab(self, event):
 		self.cycle(1)
