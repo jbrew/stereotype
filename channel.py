@@ -81,7 +81,7 @@ class Channel(Frame):
 			y = 255
 		if z >= 256:
 			z = 255
-		print x, y, z
+		#print x, y, z
 		return '#%02x%02x%02x' % (x, y, z)
 	
 	def getWeight(self):
