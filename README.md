@@ -8,6 +8,6 @@ SETTING UP THE FOLDER
 RUNNING THE PROGRAM
 
 1. Open the Mac application called Terminal
-2. Enter this into the Terminal window: cd Desktop/pt-voicebox (This means “change directory to voicebox”)
-3. Enter this into the Terminal window: python voicebox.py (This means “use python to run the script called voicebox.py”)
+2. Enter this into the Terminal window: cd Desktop/stereotype (This means “change directory to stereotype")
+3. Enter this into the Terminal window: python typer.py (This means “use python to run the script called typer.py”)
 4. Follow the onscreen instructions.
