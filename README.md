@@ -2,8 +2,8 @@
 
 SETTING UP THE FOLDER
 
-1. Download the folder (using the green button in the top right of the repo) and save it on your desktop as pt-voicebox
-2. Create a text file for each source text you want to use. Save them inside the 'texts' folder within voicebox (stereotype/texts)
+1. Download the folder (using the green button in the top right of the repo) and save it on your desktop as stereotype
+2. Create a text file for each source text you want to use. Save them inside the 'texts' folder within stereotype (stereotype/texts)
 
 RUNNING THE PROGRAM
 
