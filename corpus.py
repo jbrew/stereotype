@@ -103,7 +103,7 @@ class Corpus(object):
         if ngram in tree:
             tree[ngram].count += 1
         else:
-            tree[ngram] = Ngram(ngram, self.hindsight, self.foresight)
+            tree[ngram] = Ngram(ngram, 1, self.hindsight, self.foresight)
 
     # Finds and stores normalized frequencies
     def calculate_frequencies(self):
@@ -131,6 +131,8 @@ class Corpus(object):
     # based on adjacent words and baseline frequency
     def suggest(self, preceding, following):
     	
+    	#print 'getting suggestions from %s...' % self.name
+    	
     	# hash table check
     	context = (''.join(preceding), ''.join(following))
     	if context in self.memory:
@@ -157,8 +159,10 @@ class Corpus(object):
 									suggestions[key] = value
 								else:
 									suggestions[key] += value
-
+			
+			# look at subsequent words in sentence, and all the words before them
 			for reach in range(1, self.foresight+1):
+				print 'reach: %s' % reach
 				for ngram_size in range(1, self.max_ngram_size+1):
 					if len(following)+1 >= reach+ngram_size:
 						start_of_ngram = reach - 1

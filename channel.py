@@ -43,7 +43,7 @@ class Channel(Frame):
 	def make_keyboard(self, parent, words_and_scores, weight=100):
 		keyboard = Frame(parent, padx = 10)
 		header = Frame(keyboard)
-		self.title = Label(header, text = self.channel_name, fg = self.settings['color'])
+		self.title = Label(header, text = self.channel_name, fg = self.settings['color'], font = self.font)
 		self.title.pack(side = LEFT)
 		Button(header, text = 'X', command = self.onDel).pack(side = RIGHT)
 		self.wt_scale = Scale(header, from_=-100, to=100, orient=HORIZONTAL)
@@ -58,12 +58,13 @@ class Channel(Frame):
 			keystroke = self.optionmap()[i][1]
 			option = words_and_scores[i][0]
 			score = words_and_scores[i][1]
-			color = self.score_to_color(score*20)
-			print score, color
+			color = self.score_to_color(score*2)
+			#print score, color
 			Label(optkey, text = keylabel, width = 4, anchor = W, font = self.font, bg = color, fg = 'white').pack(side = LEFT)
 			label = option
-			b = Button(optkey, text=label, font = self.font, width = 14, anchor = W, borderwidth = 0, 
-			command= lambda word=option: self.onAddWord(word), pady = 0)
+			b = Label(optkey, text=label, font = self.font, width = 14, anchor = W, borderwidth = 0, 
+			#command= lambda word=option: self.onAddWord(word),
+			 pady = 0, padx = 10)
 			b.pack(side = LEFT)
 			self.textframe.bind(keystroke, lambda event, arg=option: self.onAddWord(arg))
 			optkey.pack(side = TOP)
@@ -102,10 +103,10 @@ class Channel(Frame):
 	def refresh_keyboard(self):
 		self.current_options = self.get_options()
 		words_and_scores = []
-		print '\n',self.channel_name
+		#print '\n',self.channel_name
 		for word, score in self.current_options[0:self.num_options]:
 			weighted_score = score * self.wt_scale.get()
-			print word, weighted_score
+			#print word, weighted_score
 			words_and_scores.append((word, weighted_score))
 		weight = self.wt_scale.get()
 		self.keyboard.destroy()

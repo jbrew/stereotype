@@ -14,7 +14,7 @@ class MasterChannel(Frame):
 		self.channel_num = len(channels)
 		self.channel_name = 'master'
 		self.mode = 'shift'
-		self.num_options = 20
+		self.num_options = 10
 		self.settings = {'color': 'black'}
 		self.parent = parent
 		self.textframe = textframe
@@ -57,8 +57,9 @@ class MasterChannel(Frame):
 			Label(optkey, text = keylabel, width = 4, anchor = W, font = self.font).pack(side = LEFT)
 			option = wordlist[i]
 			label = option
-			b = Button(optkey, text=label, font = self.font, width = 14, anchor = W, borderwidth = 0, 
-			command= lambda word=option: self.onAddWord(word), pady = 0)
+			b = Label(optkey, text=label, font = self.font, width = 14, anchor = W, borderwidth = 0, 
+			#command= lambda word=option: self.onAddWord(word),
+			pady = 0, padx = 10)
 			b.pack(side = LEFT)
 			self.textframe.bind(keystroke, lambda event, arg=option: self.onAddWord(arg))
 			optkey.pack(side = TOP)
@@ -102,9 +103,9 @@ class MasterChannel(Frame):
 		
 		suggestions = master_list[0:self.num_options]
 		only_words = []
-		print "\nmaster"
+		#print "\nmaster"
 		for word, score in suggestions:
-			print word, score
+			#print word, score
 			only_words.append(word)
 		return only_words
 		
