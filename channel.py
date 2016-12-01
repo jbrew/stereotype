@@ -12,8 +12,8 @@ class Channel(Frame):
 		Frame.__init__(self, parent)
 		self.channel_name = corpus.name
 		self.channel_num = num
-		self.mode = 'shift'
-		self.num_options = 10
+		self.mode = 'letterlabel'
+		self.num_options = 15
 		self.settings = {'color': 'black'}
 		self.parent = parent
 		self.textframe = textframe
@@ -39,6 +39,11 @@ class Channel(Frame):
 				('6', '6'), ('7', '7'), ('8', '8'), ('9', '9'), ('0', '0'),
 				('1*', '!'), ('2*', '@'), ('3*', '#'), ('4*', '$'), ('5*', '%'), 
 				('6*', '^'), ('7*', '&'), ('8*', '*'), ('9*', '('), ('0*', ')')]
+		elil self.mode = 'letterlabel':
+			return [('a', 'a'), ('b', 'b'), ('c', 'c'), ('d', 'd'), ('e', 'e'), 
+				('f', 'f'), ('g', 'g'), ('h', 'h'), ('i', 'i'), ('j', 'j'),
+				('k', 'k'), ('l', 'l'), ('m', 'm'), ('n', 'n'), ('o', 'o'), 
+				('p', 'p'), ('q', 'q'), ('r', 'r'), ('s', 's'), ('t', 't')] 
 		
 	def make_keyboard(self, parent, words_and_scores, weight=100):
 		keyboard = Frame(parent, padx = 10)
@@ -97,7 +102,6 @@ class Channel(Frame):
 		t.insert(INSERT, " "+str(word))
 		t.see(END)
 		self.refresh_keyboard()
-		#self.master.refresh_keyboards()
 		return 'break'
 	
 	def refresh_keyboard(self):
