@@ -17,7 +17,7 @@ class Editor(Frame):
 		Button(self, text='Load',  command=self.onLoad).pack()
 		self.text_frame = ScrolledText(self)
 		self.textbox = self.text_frame.text
-		self.paths = ['texts/janis-joplin.txt','texts/jimi-hendrix.txt','texts/nirvana.txt','texts/the-doors.txt']
+		self.paths = ['texts/akirachars']
 		self.channels = self.channels_from_paths(self.paths)
 		#self.master_channel = MasterChannel(self.channels)
 		#num_opt_dict = {'3': 3,'5': 5,'20':20}

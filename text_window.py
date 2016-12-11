@@ -3,8 +3,6 @@ import tkFont
 from tkSimpleDialog import askstring
 from tkFileDialog   import asksaveasfilename
 
-
-
 class ScrolledText(Frame):
     def __init__(self, parent=None, text='', file=None):
         Frame.__init__(self, parent)

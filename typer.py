@@ -3,10 +3,8 @@ import tkFont
 from tkSimpleDialog import askstring
 from tkFileDialog   import asksaveasfilename
 from corpus import Corpus
-from ngram import Ngram
 from channel import Channel
 from masterchannel import MasterChannel
-#from scrape_window import ScrapeWindow
 from load_window import LoadWindow
 from text_window import ScrolledText
 
@@ -14,14 +12,19 @@ class Editor(Frame):
 	def __init__(self, parent=None):
 		Frame.__init__(self, parent)
 		self.pack(expand=YES, fill=BOTH)
-		self.font = tkFont.Font(family="Helvetica", size=14)
+		self.font = tkFont.Font(family="Helvetica", size=12)
 		Button(self, text='Load',  command=self.onLoad).pack()
+		
+		
+		
 		self.text_frame = ScrolledText(self)
 		self.textbox = self.text_frame.text
-		self.paths = ['texts/dylan.txt']
-		self.channels = self.channels_from_paths(self.paths)
-		#self.master_channel = MasterChannel(self, self.textbox, self.channels) 
-		#self.channels.append(self.master_channel)
+		c = Corpus('treadmill',file('texts/laguardia.txt').read())
+		
+		
+		self.channels = self.channels_from_corpora([c])
+		self.master_channel = MasterChannel(self, self.textbox, self.channels) 
+		self.channels.append(self.master_channel)
 		self.select_channel(0)
 		self.textbox.bind('<BackSpace>', self.onDelWord)
 		self.textbox.bind('<Return>', self.onReturn)
@@ -45,14 +48,10 @@ class Editor(Frame):
 		if self.active_number == n:
 			self.select_channel(0)	
 
-	# given a list of paths, and optionally a list of existing channels, adds new channels generated from those paths
-	def channels_from_paths(self, paths, channels = []):
-		for path in paths:
-			name = path.split('/')[1:]
-			if not self.name_in_channels(name, channels):
-				source_text = file(path).read()
-				corpus = Corpus(source_text, name)
-				channels.append(Channel(self, self.textbox, corpus, len(channels)))
+	# given a list of corpora, adds new channels from those corpora
+	def channels_from_corpora(self, corpora, channels = []):
+		for corpus in corpora:
+			channels.append(Channel(self, self.textbox, corpus, len(channels)))
 		return channels
 
 	# returns true if one of the channels in a list of channels has the given name
@@ -182,13 +181,11 @@ class Editor(Frame):
 	
 	def get_previous(self):
 		previous = self.textbox.get('insert linestart', INSERT).split()
-		if len(previous)>=2:
-			return previous[-2:]
+		reach = 2
+		if len(previous)>=reach:
+			return previous[-1*reach:]
 		else:
 			return ['[$]'] + previous		# sentence start marker
-	
-	def onGetPrev(self):
-		print self.get_previous()
 		
 	def make_num_opt_menu(self, parent, dictionary, title):
 		panel = Frame(parent)
@@ -207,9 +204,6 @@ class Editor(Frame):
 			return next[0:2]
 		else:
 			return next
-			
-	def onGetNext(self):
-		print self.get_next()
 	
 	def setNumOptions(self):
 		for c in self.channels:

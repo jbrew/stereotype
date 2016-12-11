@@ -1,46 +1,35 @@
+from __future__ import division
 __author__ = 'jamiebrew'
+
+
 
 # information about a unique string within a corpus
 class Ngram(object):
 
-    def __init__(self, string, count=1, after_distance=0, before_distance=0):
+    def __init__(self, string, count=1, reach = 0):
         self.string = string
         self.count = count
-        self.after = [{} for _ in range(after_distance)]
-        self.before = [{} for _ in range(before_distance)]
-        self.frequency = 0              # normalized rate of occurrence
-        self.sig_score = 0              # significance score
-        self.rhymes = {}
+        self.after = [{} for _ in range(reach)]
+        self.before = [{} for _ in range(reach)]
 
-    # returns top n words occuring distance after this ngram
-    def get_after(self, distance=1, sort_attribute="count"):
-        return self._get_ngram_and_attribute(distance, sort_attribute, True)
-
-    # returns top n words occuring distance before this ngram
-    def get_before(self, distance=1, sort_attribute="count"):
-        return self._get_ngram_and_attribute(distance, sort_attribute, False)
-
-    def _get_ngram_and_attribute(self, distance, sort_attribute, is_after):
-        distance -= 1
-        dictionary = self.after[distance] if is_after else self.before[distance]
-
-        return list(
-            reversed(
-                sorted(
-                    map(
-                        lambda (string, ngram): (
-                            string,
-                            getattr(ngram, sort_attribute)
-                        ),
-                        dictionary.iteritems()
-                    ),
-                    key=lambda tuple: tuple[1]
-                )
-            )
-        )
-        
+	def add_before(self, token, reach, count):
+		target_dict = self.before[reach-1]
+		if token in target_dict:
+			target_dict[token] += count
+		else:
+			target_dict[token] = count
+	
+    def add_after(self, token, reach, count):	
+    	target_dict = self.after[reach-1]
+    	if token in target_dict:
+    		target_dict[token] += count
+    	else:
+			target_dict[token] = count
+	
+	
+	
     def __str__(self):
-        return self.string+"\ncount: "+str(self.count)+"\nfreq: "+str(self.frequency)+"\nsig: "+str(self.sig_score)+'\n'
+        return self.string+"\ncount: "+str(self.count)
 
     def __repr__(self):
         return self.string
@@ -50,3 +39,13 @@ class Ngram(object):
 
     def __eq__(self, other):
         return self.__dict__ == other.__dict__
+
+
+"""
+    	if reach > 0:
+    		print 'adding "%s" after "%s" with reach %s' % (token, self.string, reach)
+    		target_dict = self.after[abs(reach)-1]
+    	elif reach < 0:
+    		print 'adding "%s" after "%s" with reach %s' % (token, self.string, reach)
+    		target_dict = self.before[abs(reach)-1]
+    	"""	
