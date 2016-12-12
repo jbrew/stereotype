@@ -1,12 +1,10 @@
 import unittest
 import test_data
+from analyzer import Analyzer
 from corpus import Corpus
 
 
 class CorpusTests(unittest.TestCase):
-
-	def first_suggestion(self, corpus, preceding):
-		return corpus.suggest(preceding, '')[0][0]
 		
 	def _test_ccae(self):
 		empty_corpus = Corpus('JUST CCAE','')
@@ -28,35 +26,9 @@ class CorpusTests(unittest.TestCase):
 		self.assertTrue('times' not in tree['it'].after[1])
 		self.assertTrue('the' not in tree['the'].after[1])
 		
-		self.assertEqual(
-			c.conditional_frequency('it',1,'was')
-			,1)
-		self.assertEqual(
-			c.conditional_frequency('it was',1,'the')
-			,1)
-		self.assertEqual(
-			c.conditional_frequency('it',1,'zeus')
-			,0)
-		self.assertEqual(
-			c.conditional_frequency('it',2,'the')
-			,1)
-		self.assertEqual(
-			c.conditional_frequency('was the',1,'best')
-			,.5)
-		self.assertEqual(
-			c.conditional_frequency('was the',2,'of')
-			,1)
-		self.assertGreater(c.overall_frequency('it')
-			,c.overall_frequency('worst'))
-		self.assertEqual(c.overall_frequency('aphrodite'),0)
 		
-		self.assertGreater(c.sigscore('best of',1,'times'),c.overall_frequency('times'))
 		
-		self.first_suggestion(c, ['it', 'was'])
 		
-		self.assertEqual(self.first_suggestion(c, ['it', 'was']),'the')
-		self.assertEqual(self.first_suggestion(c, ['it', 'zeus']),'the')
-		self.assertEqual(self.first_suggestion(c, ['the', 'zeus']),'of')
 
 		
 	
