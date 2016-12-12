@@ -2,7 +2,6 @@ from __future__ import division
 __author__ = 'jamiebrew'
 
 
-
 # information about a unique string within a corpus
 class Ngram(object):
 
@@ -37,13 +36,3 @@ class Ngram(object):
 
 	def __eq__(self, other):
 		return self.__dict__ == other.__dict__
-
-
-"""
-		if reach > 0:
-			print 'adding "%s" after "%s" with reach %s' % (token, self.string, reach)
-			target_dict = self.after[abs(reach)-1]
-		elif reach < 0:
-			print 'adding "%s" after "%s" with reach %s' % (token, self.string, reach)
-			target_dict = self.before[abs(reach)-1]
-		"""	
