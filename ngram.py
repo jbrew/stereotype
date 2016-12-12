@@ -12,19 +12,18 @@ class Ngram(object):
 		self.before = [{} for _ in range(reach)]
 	
 	def add_before(self, token, reach, count):
-	    target_dict = self.before[reach-1]
+		target_dict = self.before[reach-1]
 		if token in target_dict:
 			target_dict[token] += count
 		else:
 			target_dict[token] = count
 			
 	def add_after(self, token, reach, count):
-	    target_dict = self.after[reach-1]	
+		target_dict = self.after[reach-1]	
 		if token in target_dict:
 			target_dict[token] += count
 		else:
 			target_dict[token] = count
-	
 	
 	
 	def __str__(self):
