@@ -12,8 +12,9 @@ class Corpus(object):
 		self.wordcount = 0
 		self.max_reach = 2
 		self.tree = {}
-		self.ccae_weight = .00001
 		self.eat_text(text)
+		
+		self.ccae_weight = .00001
 		#self.eat_ccae_filtered('ngram_data/w2_.txt',set(self.tree.keys()))
 		#self.eat_ccae_filtered('ngram_data/w3_.txt', set(self.tree.keys()))
 		#self.eat_ccae_filtered('ngram_data/w4_.txt', set(self.tree.keys()))
